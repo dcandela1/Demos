@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/46268901-76ae-400d-bc4a-4153c9e1a543')]",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/46268901-76ae-400d-bc4a-4153c9e1a543')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+            "kind": "Scheduled",
+            "apiVersion": "2021-09-01-preview",
+            "properties": {
+                "displayName": "[Linux] Python3 Daemon Running",
+                "description": "There is an alert generated from SolidQ client, there is a python3 dameon running, must be check it for discard a malware into python code running inside the virtual machine of production environment",
+                "severity": "Medium",
+                "enabled": true,
+                "query": "Sophos_Endpoint_CL \r\n| where name_s == \"Actualización realizada correctamente\" and ip_s == \"192.168.3.6\"",
+                "queryFrequency": "P1D",
+                "queryPeriod": "P5D",
+                "triggerOperator": "GreaterThan",
+                "triggerThreshold": 0,
+                "suppressionDuration": "PT5H",
+                "suppressionEnabled": false,
+                "tactics": [
+                    "Execution"
+                ],
+                "alertRuleTemplateName": null,
+                "incidentConfiguration": {
+                    "createIncident": true,
+                    "groupingConfiguration": {
+                        "enabled": false,
+                        "reopenClosedIncident": false,
+                        "lookbackDuration": "PT5H",
+                        "matchingMethod": "AllEntities",
+                        "groupByEntities": [],
+                        "groupByAlertDetails": [],
+                        "groupByCustomDetails": []
+                    }
+                },
+                "eventGroupingSettings": {
+                    "aggregationKind": "SingleAlert"
+                },
+                "alertDetailsOverride": {
+                    "alertDisplayNameFormat": "[Linux] Python3 Daemon Running-01",
+                    "alertDescriptionFormat": null,
+                    "alertTacticsColumnName": null,
+                    "alertSeverityColumnName": null
+                },
+                "customDetails": null,
+                "entityMappings": null
+            }
+        }
+    ]
+}
