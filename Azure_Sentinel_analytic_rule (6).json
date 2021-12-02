@@ -1,0 +1,79 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/4ea57cac-e492-4423-927b-6008bf61f57d')]",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/4ea57cac-e492-4423-927b-6008bf61f57d')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+            "kind": "Scheduled",
+            "apiVersion": "2021-09-01-preview",
+            "properties": {
+                "displayName": "Actividad Inusual Azure",
+                "description": "",
+                "severity": "Medium",
+                "enabled": false,
+                "query": "AzureActivity\r\n| where OperationName == \"Create or Update Virtual Machine\" or OperationName ==\"Create Deployment\"\r\n| where ActivityStatus == \"Succeeded\"\r\n| make-series dcount(ResourceId)  default=0 on EventSubmissionTimestamp in range(ago(10d), now(), 1d) by Caller",
+                "queryFrequency": "PT1H",
+                "queryPeriod": "P10D",
+                "triggerOperator": "GreaterThan",
+                "triggerThreshold": 0,
+                "suppressionDuration": "PT5H",
+                "suppressionEnabled": false,
+                "tactics": [
+                    "InitialAccess",
+                    "PreAttack"
+                ],
+                "alertRuleTemplateName": null,
+                "incidentConfiguration": {
+                    "createIncident": true,
+                    "groupingConfiguration": {
+                        "enabled": true,
+                        "reopenClosedIncident": false,
+                        "lookbackDuration": "PT5H",
+                        "matchingMethod": "AllEntities",
+                        "groupByEntities": [],
+                        "groupByAlertDetails": [],
+                        "groupByCustomDetails": []
+                    }
+                },
+                "eventGroupingSettings": {
+                    "aggregationKind": "SingleAlert"
+                },
+                "alertDetailsOverride": null,
+                "customDetails": null,
+                "entityMappings": [
+                    {
+                        "entityType": "Account",
+                        "fieldMappings": [
+                            {
+                                "identifier": "AadUserId",
+                                "columnName": "Caller"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/4ea57cac-e492-4423-927b-6008bf61f57d/actions/5ba11483ad14487d8f887e9d1a179c9a')]",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/4ea57cac-e492-4423-927b-6008bf61f57d/5ba11483ad14487d8f887e9d1a179c9a')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules/actions",
+            "apiVersion": "2021-09-01-preview",
+            "properties": {
+                "ruleId": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/4ea57cac-e492-4423-927b-6008bf61f57d')]",
+                "triggerUri": "[listCallbackURL(concat('/subscriptions/0dc64253-7e88-459c-b737-826b8e06b2a4/resourceGroups/Entorno_Demo/providers/Microsoft.Logic/workflows/Get-SOCActions','/triggers/When_a_response_to_an_Azure_Sentinel_alert_is_triggered'),'2016-06-01').value]",
+                "logicAppResourceId": "/subscriptions/0dc64253-7e88-459c-b737-826b8e06b2a4/resourceGroups/Entorno_Demo/providers/Microsoft.Logic/workflows/Get-SOCActions",
+                "operatesOn": "Alert"
+            },
+            "dependsOn": [
+                "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/4ea57cac-e492-4423-927b-6008bf61f57d')]"
+            ]
+        }
+    ]
+}
